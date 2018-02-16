@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+dir="$(cd "$( dirname $0)" && pwd)"
+output_dir="$dir"/../build
+
+set -ex
+
+while getopts "m:s:c:" arg; do
+  case $arg in
+    m) manifest="$OPTARG"
+      ;;
+    s) stemcell_url="$OPTARG"
+      ;;
+    c) cloud_config="$OPTARG"
+  esac
+done
+
+releases_dir="$(mktemp -d)"
+mkdir -p "$releases_dir"
+
+stemcell_version () {
+  rq -y <"$manifest" | jq -r '.stemcells[0].version'
+}
+
+download_warden_stemcell () {
+  pushd "$releases_dir"
+    wget "https://s3.amazonaws.com/bosh-core-stemcells/warden/bosh-stemcell-$(stemcell_version)-warden-boshlite-ubuntu-trusty-go_agent.tgz"
+  popd
+}
+
+download_compiled_releases () {
+  pushd "$releases_dir"
+    rq -y <"$manifest" | jq '.releases[] | select(has("stemcell")) | .url' | xargs wget
+  popd
+}
+
+compile_releases () {
+    releases_to_compile="$(rq -y <"$manifest" | jq -r '.releases[] | select(has("stemcell") | not) | "\(.name)/\(.version)"')"
+    compilation_manifest="$(rq -y <"$manifest" | jq 'del(.instance_groups) | del(.addons) | del(.variables)' | rq -Y)"
+    bosh upload-stemcell "$stemcell_url"
+    bosh -n deploy -d cf <(echo "$compilation_manifest")
+    for release in $releases_to_compile; do
+      bosh -d cf export-release "$release" ubuntu-trusty/"$(stemcell_version)" --dir "$releases_dir"
+    done
+}
+
+tar_deps () {
+  cp "$manifest" "$releases_dir"
+  cp "$cloud_config" "$releases_dir"
+  pushd "$releases_dir"
+    tar czf "$output_dir"/cf.tgz *
+  popd
+  rm -rf "$releases_dir"
+}
+
+main () {
+  # download_warden_stemcell
+  # download_compiled_releases
+  compile_releases
+  tar_deps
+}
+
+main

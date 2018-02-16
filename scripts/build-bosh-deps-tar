@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+dir="$(cd "$( dirname $0)" && pwd)"
+output_dir="$dir"/../build
+
+set -ex
+
+while getopts "m:s:c:" arg; do
+  case $arg in
+    m) bosh_manifest="$OPTARG"
+      ;;
+    s) stemcell_url="$OPTARG"
+      ;;
+  esac
+done
