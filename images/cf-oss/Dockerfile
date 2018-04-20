@@ -33,6 +33,7 @@ RUN set -x && \
       iptables \
       jq \
       openssh \
+      socat \
       sudo \
       util-linux && \
     \
