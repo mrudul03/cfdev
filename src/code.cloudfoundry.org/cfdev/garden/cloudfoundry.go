@@ -55,6 +55,9 @@ func DeployCloudFoundry(client garden.Client, dockerRegistries []string) error {
 		return err
 	}
 
+	if err := copyFileToContainer(container, "/home/dgodd/workspace/cfdev/images/cf-oss/allow-mounting", "/usr/bin/allow-mounting"); err != nil {
+		return err
+	}
 	if err := copyFileToContainer(container, "/home/dgodd/workspace/cfdev/images/cf-oss/deploy-cf", "/usr/bin/deploy-cf"); err != nil {
 		return err
 	}
