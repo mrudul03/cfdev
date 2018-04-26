@@ -11,7 +11,7 @@ func NewBosh(Exit chan struct{}, UI UI, Config config.Config) *cobra.Command {
 	cmd := &cobra.Command{
 		Use: "bosh",
 		Run: func(cmd *cobra.Command, args []string) {
-			UI.Say(`Usage: eval $(cf dev bosh env)`)
+			UI.Say(`Usage: eval "$(cf dev bosh env)"`)
 		},
 	}
 	envCmd := &cobra.Command{
