@@ -86,7 +86,7 @@ func (s *start) RunE() error {
 	}
 
 	s.UI.Say("Deploying the BOSH Director...")
-	if err := gdn.DeployBosh(garden, registries); err != nil {
+	if err := gdn.DeployBosh(s.Config, garden, registries); err != nil {
 		fmt.Printf("Failed to deploy the BOSH Director: %v\n", err)
 		return fmt.Errorf("Failed to deploy the BOSH Director: %v\n", err)
 	}

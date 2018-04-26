@@ -1,10 +1,13 @@
 package garden
 
 import (
+	"path/filepath"
+
+	"code.cloudfoundry.org/cfdev/config"
 	"code.cloudfoundry.org/garden"
 )
 
-func DeployBosh(client garden.Client, dockerRegistries []string) error {
+func DeployBosh(Config config.Config, client garden.Client, dockerRegistries []string) error {
 	containerSpec := garden.ContainerSpec{
 		Handle:     "deploy-bosh",
 		Privileged: true,
@@ -27,6 +30,11 @@ func DeployBosh(client garden.Client, dockerRegistries []string) error {
 			{
 				SrcPath: "/home/dgodd/.cfdev/cache",
 				DstPath: "/var/vcap/cfdev_cache",
+				Mode:    garden.BindMountModeRO,
+			},
+			{
+				SrcPath: filepath.Join(Config.CFDevHome, "gdn.socket"),
+				DstPath: "/var/vcap/gdn.socket",
 				Mode:    garden.BindMountModeRO,
 			},
 		},

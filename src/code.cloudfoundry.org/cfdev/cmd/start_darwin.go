@@ -143,7 +143,7 @@ func (s *start) RunE() error {
 	gdn.WaitForGarden(garden, 3*time.Minute)
 
 	s.UI.Say("Deploying the BOSH Director...")
-	if err := gdn.DeployBosh(garden); err != nil {
+	if err := gdn.DeployBosh(s.Config, garden); err != nil {
 		return fmt.Errorf("Failed to deploy the BOSH Director: %v\n", err)
 	}
 
