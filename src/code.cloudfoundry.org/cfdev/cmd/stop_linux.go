@@ -17,7 +17,7 @@ func NewStop(Config *config.Config, AnalyticsClient analytics.Client) *cobra.Com
 	cmd := &cobra.Command{
 		Use: "stop",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			garden := gdn.NewClient()
+			garden := gdn.NewClient(*Config)
 			containers, err := garden.Containers(nil)
 			if err != nil {
 				return nil
@@ -35,7 +35,7 @@ func NewStop(Config *config.Config, AnalyticsClient analytics.Client) *cobra.Com
 			}
 
 			fmt.Println("Stop Garden")
-			if err := process.SignalAndCleanup(filepath.Join(Config.CFDevHome, "garden.pid"), "/var/vcap/gdn.socket", syscall.SIGTERM); err != nil {
+			if err := process.SignalAndCleanup(filepath.Join(Config.CFDevHome, "garden.pid"), filepath.Join(Config.CFDevHome, "gdn.socket"), syscall.SIGTERM); err != nil {
 				return fmt.Errorf("try using sudo ; failed to terminate garden: %s", err)
 			}
 			return nil

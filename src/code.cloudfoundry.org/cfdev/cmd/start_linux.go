@@ -36,7 +36,10 @@ func NewStart(Exit chan struct{}, UI UI, Config config.Config, AnalyticsClient a
 	cmd := &cobra.Command{
 		Use: "start",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return s.RunE()
+			if err := s.RunE(); err != nil {
+				UI.Say("Failed to start cfdev: %v\n", err)
+			}
+			return nil
 		},
 	}
 	pf := cmd.PersistentFlags()
@@ -60,7 +63,7 @@ func (s *start) RunE() error {
 		return err
 	}
 
-	garden := gdn.NewClient()
+	garden := gdn.NewClient(s.Config)
 	if garden.Ping() == nil {
 		s.UI.Say("CF Dev is already running...")
 		cfanalytics.TrackEvent(cfanalytics.START_END, map[string]interface{}{"type": "cf", "alreadyrunning": true}, s.AnalyticsClient)
@@ -110,10 +113,11 @@ func (s *start) startGarden(garden client.Client) error {
 		return err
 	}
 	// Add to below? --dns-server=8.8.8.8
-	s.gdnServer = exec.Command("sudo", "/var/vcap/gdn-1.12.1", "server", "--bind-socket=/var/vcap/gdn.socket")
+	s.gdnServer = exec.Command("sudo", filepath.Join(s.Config.CFDevHome, "cache", "gdn"), "server", "--bind-socket="+filepath.Join(s.Config.CFDevHome, "gdn.socket"))
 	s.gdnServer.Stdout = fh
 	s.gdnServer.Stderr = fh
 	s.gdnServer.SysProcAttr = &syscall.SysProcAttr{Setsid: true}
+	// TODO the below is a terrible way to get password
 	s.gdnServer.Env = append(os.Environ(), "SUDO_ASKPASS=/tmp/askpass")
 	if err := s.gdnServer.Start(); err != nil {
 		return fmt.Errorf("starting garden: %s", err)

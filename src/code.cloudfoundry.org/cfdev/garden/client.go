@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"time"
 
+	"code.cloudfoundry.org/cfdev/config"
 	"code.cloudfoundry.org/garden"
 	"code.cloudfoundry.org/garden/client"
 )
 
-func NewClient() client.Client {
-	return client.New(newGardenConnection())
+func NewClient(Config config.Config) client.Client {
+	return client.New(newGardenConnection(Config))
 }
 
 func WaitForGarden(gClient garden.Client, timeout time.Duration) error {

@@ -136,7 +136,7 @@ func (s *start) RunE() error {
 		return fmt.Errorf("Failed to write VM pid file: %v\n", err)
 	}
 
-	garden, err := gdn.NewClient()
+	garden, err := gdn.NewClient(s.Config)
 	if err != nil {
 		return err
 	}
