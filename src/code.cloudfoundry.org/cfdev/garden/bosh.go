@@ -37,17 +37,13 @@ func DeployBosh(client garden.Client, dockerRegistries []string) error {
 		return err
 	}
 
-	// TODO place socat in workspace.tar
-	// curl -L -o /var/vcap/socat https://github.com/andrew-d/static-binaries/raw/master/binaries/linux/x86_64/socat
-	// chmod +x /var/vcap/socat
-
 	if err := copyFileToContainer(container, "/home/dgodd/workspace/cfdev/images/cf-oss/allow-mounting", "/usr/bin/allow-mounting"); err != nil {
 		return err
 	}
 	if err := copyFileToContainer(container, "/home/dgodd/workspace/cfdev/images/cf-oss/deploy-bosh", "/usr/bin/deploy-bosh"); err != nil {
 		return err
 	}
-	if err := copyFileToContainer(container, "/var/vcap/socat", "/usr/bin/socat"); err != nil {
+	if err := copyFileToContainer(container, "/home/dgodd/workspace/cfdev/images/cf-oss/bosh-operations/use_gdn_unix_socket.yml", "/var/vcap/use_gdn_unix_socket.yml"); err != nil {
 		return err
 	}
 

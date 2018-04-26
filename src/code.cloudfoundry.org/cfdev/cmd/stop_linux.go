@@ -23,6 +23,7 @@ func NewStop(Config *config.Config, AnalyticsClient analytics.Client) *cobra.Com
 				return nil
 			}
 			for _, container := range containers {
+				fmt.Printf("Delete Container: %s\n", container.Handle())
 				if err := garden.Destroy(container.Handle()); err != nil {
 					return nil
 				}
