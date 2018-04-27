@@ -63,6 +63,12 @@ func (s *start) RunE() error {
 		return err
 	}
 
+	// TODO should this be the same on linux as on darwin????
+	registries, err := s.parseDockerRegistriesFlag(s.Registries)
+	if err != nil {
+		return fmt.Errorf("Unable to parse docker registries %v\n", err)
+	}
+
 	garden := gdn.NewClient(s.Config)
 	if garden.Ping() == nil {
 		s.UI.Say("CF Dev is already running...")
@@ -70,19 +76,14 @@ func (s *start) RunE() error {
 		return nil
 	}
 
-	if err := s.startGarden(garden); err != nil {
-		return fmt.Errorf("Unable to start garden server %v\n", err)
-	}
-
-	// TODO should this be the same on linux as on darwin????
-	registries, err := s.parseDockerRegistriesFlag(s.Registries)
-	if err != nil {
-		return fmt.Errorf("Unable to parse docker registries %v\n", err)
-	}
-
 	s.UI.Say("Downloading Resources...")
 	if err := download(s.Config.Dependencies, s.Config.CacheDir); err != nil {
 		return err
+	}
+
+	s.UI.Say("Starting Garden Server...")
+	if err := s.startGarden(garden); err != nil {
+		return fmt.Errorf("Unable to start garden server %v\n", err)
 	}
 
 	s.UI.Say("Deploying the BOSH Director...")
