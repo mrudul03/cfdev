@@ -91,7 +91,7 @@ func (s *start) RunE() error {
 		return fmt.Errorf("Failed to deploy the BOSH Director: %v\n", err)
 	}
 
-	// TODO we need to do `sudo route add -net 10.144.0.0/24 gw 10.245.0.2` (or something less???)
+	// TODO we need to do `sudo route add -host 10.144.0.34 gw 10.245.0.2`
 
 	s.UI.Say("Deploying CF...")
 	if err := gdn.DeployCloudFoundry(garden, registries); err != nil {

@@ -62,7 +62,7 @@ func DeployCloudFoundry(client garden.Client, dockerRegistries []string) error {
 		return err
 	}
 
-	if err := runInContainer(container, "allow-mounting", "/var/vcap/allow-mounting"); err != nil {
+	if err := runInContainer(container, "allow-mounting", "/usr/bin/allow-mounting"); err != nil {
 		return err
 	}
 	if err := runInContainer(container, "deploy-cf", "/usr/bin/deploy-cf"); err != nil {
